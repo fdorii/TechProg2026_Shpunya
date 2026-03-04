@@ -1,4 +1,5 @@
 #include "mytcpserver.h"
+#include "func2serv.h"
 #include <QDebug>
 #include <QCoreApplication>
 #include <QString>
@@ -46,27 +47,39 @@ void MyTcpServer::slotNewConnection()
 
 void MyTcpServer::slotServerRead()
 {
-    // Определяем, какой именно клиент прислал данные
+  // Определяем, какой именно клиент прислал данные
     QTcpSocket *socket = qobject_cast<QTcpSocket *>(sender());
     if (!socket) return;
+    
+    // Берем буфер для этого клиента 
+    QString &res = mBuffers[socket];
 
-    while (socket->bytesAvailable() > 0) {
+    while (socket->bytesAvailable() > 0)
+    {
         QByteArray array = socket->readAll();
-        qDebug() << "Received from client:" << array;
-
-        if (array == "\x01") {
-            // Отправляем накопленный буфер и сбрасываем его
-            socket->write(mBuffers[socket].toUtf8());
-            mBuffers[socket] = "";
-        } else {
-            mBuffers[socket].append(array);
+        qDebug() << "IN: " << array;
+        
+        if (array == "\x01")
+        {
+            // Отправляем накопленный буфер
+            QByteArray result = parsing(res.trimmed());
+            qDebug() << "OUT: " << result;
+            socket->write(result);
+            res.clear();  // очищаем буфер
+        }
+        else
+        {
+            // Добавляем данные в буфер
+            res.append(array);
         }
     }
-
-    // Эхо — отправляем обратно то, что накопилось
-    if (!mBuffers[socket].isEmpty()) {
-        socket->write(mBuffers[socket].toUtf8());
-        mBuffers[socket] = "";
+    
+    // Отправляем остаток данных, если есть
+    if (!res.isEmpty()) {
+        QByteArray result = parsing(res.trimmed());
+        qDebug() << "OUT: " << result;
+        socket->write(result);
+        res.clear();
     }
 }
 
