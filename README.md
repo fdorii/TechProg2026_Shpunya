@@ -14,4 +14,4 @@
 > <b><code><a href="https://github.com/fdorii">Липатникова Надежда</a></br></code> - занимается ведением гит, чуть-чуть сервером, а также 3 из математических задач
 
 Маскот:
-<img src="[URL-изображения](https://github.com/user-attachments/assets/2a4e7e8e-2f0d-4e96-9900-e4fddbe29976)" width="500" height="300" alt="Маскот">
+![photo_2026-02-20_11-15-10](https://github.com/user-attachments/assets/2a4e7e8e-2f0d-4e96-9900-e4fddbe29976)
