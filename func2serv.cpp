@@ -1,4 +1,5 @@
 #include "func2serv.h"
+#include "database.h"
 #include <QDebug>
 
 QByteArray parsing(QString data_from_client)
@@ -18,6 +19,10 @@ QByteArray parsing(QString data_from_client)
     else if (nameOfFunc == "reg") {
             return reg(data_from_client_list.at(0), 
                       data_from_client_list.at(1)).toUtf8();
+    }
+    else if (nameOfFunc == "get_stats") {
+            return get_stats(data_from_client_list.at(0)).toUtf8();
+
     }
     else if (nameOfFunc == "get_tasks") {
             return get_tasks(data_from_client_list.at(0)).toUtf8();
@@ -40,23 +45,32 @@ QByteArray parsing(QString data_from_client)
 QString auth(QString login, QString password)
 {
     qDebug() << "Auth:" << login << password;
-    //dataBase
-    
-    if (login == "user" && password == "123") {
+
+    if (DataBase::getInstance()->auth(login, password)) {
         return "auth+\n";
     }
-    else {
-        return "auth-\n";
-    }
+
+    return "auth-\n";
 }
 
 // Регистрация
 QString reg(QString login, QString password)
 {
     qDebug() << "Reg:" << login << password;
-    //dataBase
-    
-    return "reg+\n"; 
+
+    if (DataBase::getInstance()->reg(login, password)) {
+        return "reg+\n";
+    }
+
+    return "reg-: registration failed\n";
+}
+
+QString get_stats(QString login)
+{
+    qDebug() << "GET_STATS for user:" << login;
+
+    int count = DataBase::getInstance()->getStats(login);
+    return QString("stats: %1\n").arg(count);
 }
 
 // Список задач для пользователя
@@ -89,18 +103,26 @@ QString check_answer(QString login, QString task_id, QString answer)
     qDebug() << "CHECK_ANSWER - user:" << login
              << "task:" << task_id << "answer:" << answer;
 
+    QString cleanAnswer = answer.trimmed();
+    bool isCorrect = false;
 
-    if (task_id == "1" && answer == "3") {
-        return "correct\n";
+    if (task_id == "1" && cleanAnswer == "3") {
+        isCorrect = true;
     }
-    else if (task_id == "2" && answer == "5") {
-        return "correct\n";
+    else if (task_id == "2" && cleanAnswer == "5") {
+        isCorrect = true;
     }
-    else if (task_id == "3" && answer == "11") {
-        return "correct\n";
+    else if (task_id == "3" && cleanAnswer == "11") {
+        isCorrect = true;
     }
 
-    return "incorrect\n";
+    DataBase::getInstance()->saveResult(login, task_id.toInt(), isCorrect);
+
+    if (isCorrect) {
+        return "correct\n";
+    } else {
+        return "incorrect\n";
+    }
 }
 
 
