@@ -1,4 +1,5 @@
 #include "database.h"
+#include <QCoreApplication>
 
 // Инициализация статических переменных
 DataBase* DataBase::p_instance = nullptr;
@@ -9,7 +10,9 @@ DataBase::DataBase()
 {
     // Подключаемся к базе
     db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName("/Users/mariaivanova/Desktop/TechProg2026_Shpunya/SQLite.db");
+    // Путь задаётся через переменную окружения DB_PATH или по умолчанию /app/data/SQLite.db
+    QString dbPath = qEnvironmentVariable("DB_PATH", "/app/data/SQLite.db");
+    db.setDatabaseName(dbPath);
 
     if (!db.open()) {
         qDebug() << "Database error:" << db.lastError().text();
