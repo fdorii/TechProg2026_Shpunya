@@ -1,11 +1,24 @@
 #include "singletonclient.h"
 
-SingletonClient::Singletonclient(Qobject *parent): QObject(parent)
+
+SingletonClient* SingletonClient::p_instance = nullptr;
+SingletonDestroyer SingletonClient::destroyer;
+
+SingletonClient::SingletonClient(QObject *parent): QObject(parent)
 {
     mTcpSocket = new QTcpSocket(this);
 
     mTcpSocket->connectToHost("127.0.0.1", 33333);
     connect(mTcpSocket, SIGNAL (readyRead()), this, SLOT(slotServerRead()));
+}
+
+SingletonClient::~SingletonClient()
+{
+    qDebug() << "SingletonClient destroyed";
+    if(mTcpSocket) {
+        mTcpSocket->close();
+        delete mTcpSocket;
+    }
 }
 
 SingletonClient* SingletonClient::getInstance()

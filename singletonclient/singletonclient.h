@@ -34,11 +34,11 @@ class SingletonClient: public QObject
         friend class SingletonDestroyer;
     public:
         static SingletonClient* getInstance();
-        void send_msq_to_server(QString query);
+        void send_msg_to_server(QString query);
     signals:
         void msg_from_server(QString msg);
     private slots:
-        void ServerRead();
+        void slotServerRead();
 };
 
 #endif // SINGLETONCLIENT_H

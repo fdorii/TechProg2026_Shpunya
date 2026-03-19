@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
     //SingletonClient: : getInstance();
     std :: string msg;
     std :: cin>>msg;
-    SingletonClient: :getInstance()->send_msg_to_server(QString::fromStdString(msg));
+    SingletonClient::getInstance()->send_msg_to_server(QString::fromStdString(msg));
 
     return a.exec();
 }
