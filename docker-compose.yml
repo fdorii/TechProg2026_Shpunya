@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+  echo-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: techprog2026-shpunya:latest
+    container_name: echo_server
+    ports:
+      - "33333:33333"
+    volumes:
+      # SQLite.db монтируется из текущей папки в /app/data/
+      - ./SQLite.db:/app/data/SQLite.db
+    environment:
+      - DB_PATH=/app/data/SQLite.db
+    restart: unless-stopped
