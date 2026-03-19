@@ -47,32 +47,39 @@ void MyTcpServer::slotNewConnection()
 
 void MyTcpServer::slotServerRead()
 {
-    // Определяем, какой именно клиент прислал данные
+  // Определяем, какой именно клиент прислал данные
     QTcpSocket *socket = qobject_cast<QTcpSocket *>(sender());
     if (!socket) return;
-
-    // Берём буфер для этого клиента
+    
+    // Берем буфер для этого клиента 
     QString &res = mBuffers[socket];
 
-    // Читаем все доступные байты и добавляем в буфер клиента
-    QByteArray array = socket->readAll();
-    qDebug() << "IN: " << array;
-    res.append(array);
-
-    // Проверяем буфер на наличие маркера конца команды (\x01).
-    // Одна readAll() может содержать несколько команд подряд — обрабатываем все.
-    while (res.contains(QChar('\x01')))
+    while (socket->bytesAvailable() > 0)
     {
-        int markerPos = res.indexOf(QChar('\x01'));
-        QString command = res.left(markerPos).trimmed();
-        res.remove(0, markerPos + 1);  // убираем команду и маркер из буфера
-
-        if (!command.isEmpty())
+        QByteArray array = socket->readAll();
+        qDebug() << "IN: " << array;
+        
+        if (array == "\x01")
         {
-            QByteArray result = parsing(command);
+            // Отправляем накопленный буфер
+            QByteArray result = parsing(res.trimmed());
             qDebug() << "OUT: " << result;
             socket->write(result);
+            res.clear();  // очищаем буфер
         }
+        else
+        {
+            // Добавляем данные в буфер
+            res.append(array);
+        }
+    }
+    
+    // Отправляем остаток данных, если есть
+    if (!res.isEmpty()) {
+        QByteArray result = parsing(res.trimmed());
+        qDebug() << "OUT: " << result;
+        socket->write(result);
+        res.clear();
     }
 }
 
