@@ -1,6 +1,6 @@
 #include "singletonclient.h"
 
-SingletonClient::Singletonclient(Qobject *parent): QObject(parent)
+SingletonClient::SingletonClient(Qobject *parent): QObject(parent)
 {
     mTcpSocket = new QTcpSocket(this);
 
