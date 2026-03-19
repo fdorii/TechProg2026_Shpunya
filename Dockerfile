@@ -8,7 +8,6 @@ ENV TZ=Europe/Moscow
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# Устанавливаем Qt5 + инструменты сборки + SQLite
 RUN apt-get update && apt-get install -y \
     build-essential \
     qtbase5-dev \
@@ -21,17 +20,15 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /build
 
-# Копируем исходники
 COPY *.cpp ./
 COPY *.h   ./
 COPY *.pro ./
 
-# Собираем в release-режиме
 RUN qmake echoServer.pro CONFIG+=release CONFIG-=debug \
     && make -j$(nproc)
 
 # ============================================================
-# Stage 2: Runtime (минимальный образ)
+# Stage 2: Runtime
 # ============================================================
 FROM ubuntu:22.04 AS runtime
 
@@ -40,7 +37,6 @@ ENV TZ=Europe/Moscow
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# Только runtime-зависимости
 RUN apt-get update && apt-get install -y \
     libqt5core5a \
     libqt5network5 \
@@ -50,13 +46,9 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Бинарник из стадии сборки
 COPY --from=builder /build/echoServer ./echoServer
-
-# Папка для базы данных (монтируется как volume)
 RUN mkdir -p /app/data
 
-# Путь к БД через переменную окружения (можно переопределить при запуске)
 ENV DB_PATH=/app/data/SQLite.db
 
 EXPOSE 33333
