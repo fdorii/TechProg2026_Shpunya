@@ -22,8 +22,7 @@ SOURCES += \
     main.cpp \
     mytcpserver.cpp \
     func2serv.cpp 
-SOURCES += \
-    singletonclient/singletonclient.cpp
+
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -33,5 +32,4 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     database.h \
     mytcpserver.h \
-    func2serv.h \
-    singletonclient/singletonclient.h
+    func2serv.h 

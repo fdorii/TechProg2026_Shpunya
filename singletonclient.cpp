@@ -24,9 +24,10 @@ SingletonClient::~SingletonClient()
 SingletonClient* SingletonClient::getInstance()
 {
     if (!p_instance)
-
-    p_instance = new SingletonClient();
-    destroyer.initialize(p_instance);
+    {
+        p_instance = new SingletonClient();
+        destroyer.initialize(p_instance);
+    }
 
     return p_instance;
 }
