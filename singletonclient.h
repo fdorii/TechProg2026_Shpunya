@@ -1,5 +1,6 @@
 #ifndef SINGLETONCLIENT_H
 #define SINGLETONCLIENT_H
+
 #include <QTcpSocket>
 #include <QtNetwork>
 #include <QString>
@@ -7,38 +8,41 @@
 #include <QDebug>
 #include <QByteArray>
 
-class SingletonClient;
-
-class SingletonDestroyer
-{
-    private:
-        SingletonClient * p_instance;
-    public:
-        ~SingletonDestroyer() { delete p_instance;}
-        void initialize(SingletonClient * p){p_instance = p;}
-};
-
-
-class SingletonClient: public QObject
+class SingletonClient : public QObject
 {
     Q_OBJECT
-    private:
-        static SingletonClient * p_instance;
-        static SingletonDestroyer destroyer;
-        QTcpSocket * mTcpSocket;
-    protected:
-        explicit SingletonClient(QObject *parent = nullptr);
-        SingletonClient(const SingletonClient& ) = delete;
-        SingletonClient& operator = (SingletonClient &) = delete;
-        ~SingletonClient();
-        friend class SingletonDestroyer;
-    public:
-        static SingletonClient* getInstance();
-        void send_msg_to_server(QString query);
-    signals:
-        void msg_from_server(QString msg);
-    private slots:
-        void slotServerRead();
+
+private:
+    static SingletonClient* p_instance;
+    QTcpSocket* mTcpSocket;
+    QString m_lastMessage;
+    QByteArray m_readBuffer;  // Буфер для накопления данных
+
+    explicit SingletonClient(QObject *parent = nullptr);
+    SingletonClient(const SingletonClient&) = delete;
+    SingletonClient& operator=(SingletonClient&) = delete;
+    ~SingletonClient();
+
+public:
+    static SingletonClient* getInstance();
+    static void destroyInstance();
+
+    void send_msg_to_server(QString query);
+    void reconnect();
+    bool isConnected() const;
+    QString getLastMessage() const;
+
+signals:
+    void msg_from_server(QString msg);
+    void connected();
+    void disconnected();
+    void errorOccurred(QString error);
+
+private slots:
+    void slotServerRead();
+    void onConnected();
+    void onDisconnected();
+    void onError(QAbstractSocket::SocketError socketError);
 };
 
 #endif // SINGLETONCLIENT_H
