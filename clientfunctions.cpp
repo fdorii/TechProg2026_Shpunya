@@ -2,6 +2,7 @@
 #include "registrationform.h"
 #include "loginform.h"
 #include "mainwindow.h"
+#include "statisticwindow.h"
 #include "singletonclient.h"
 #include <QDebug>
 #include <QMessageBox>
@@ -14,7 +15,6 @@ ClientFunctions::ClientFunctions(QObject *parent)
 {
     qDebug() << "ClientFunctions constructor called";
 
-    // Получаем экземпляр синглтона клиента
     client = SingletonClient::getInstance();
     setupClientConnections();
 
