@@ -33,3 +33,9 @@ HEADERS += \
     database.h \
     mytcpserver.h \
     func2serv.h 
+
+# macOS specific configuration
+macx {
+    QMAKE_LFLAGS += -F/opt/homebrew/lib
+    LIBS += -F/opt/homebrew/lib -framework QtCore -framework QtNetwork -framework QtSql
+}

@@ -1,7 +1,9 @@
-QT -= gui
-QT += core widgets gui
+QMAKE_LFLAGS += -F/opt/homebrew/lib
 
-CONFIG += c++11 console
+QT -= gui
+QT += core widgets gui network
+
+CONFIG += c++17 console
 CONFIG -= app_bundle
 
 DEFINES += QT_DEPRECATED_WARNINGS
@@ -11,7 +13,8 @@ SOURCES += \
     clientfunctions.cpp \
     loginform.cpp \
     mainwindow.cpp \
-    registrationform.cpp 
+    registrationform.cpp \
+    singletonclient.cpp
 
 HEADERS += \
     clientfunctions.h \
