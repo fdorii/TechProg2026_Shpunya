@@ -2,3 +2,4 @@
 build
 .qtcreator
 SQLite.db
+singletonclient
