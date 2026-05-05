@@ -21,7 +21,8 @@ SOURCES += \
     database.cpp \
     main.cpp \
     mytcpserver.cpp \
-    func2serv.cpp
+    func2serv.cpp 
+
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -31,4 +32,10 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     database.h \
     mytcpserver.h \
-    func2serv.h
+    func2serv.h 
+
+# macOS specific configuration
+macx {
+    QMAKE_LFLAGS += -F/opt/homebrew/lib
+    LIBS += -F/opt/homebrew/lib -framework QtCore -framework QtNetwork -framework QtSql
+}
