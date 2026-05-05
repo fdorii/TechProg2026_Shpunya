@@ -27,6 +27,7 @@ private slots:
     void on_exitButton_clicked();
     void on_logoutButton_clicked();
     void on_pushButton_2_clicked();  // 1 задача
+    void on_pushButton_4_clicked();  // 3 задача
     void on_pushButton_5_clicked();  // Показать статистику
 private:
     Ui::MainWindow *ui;

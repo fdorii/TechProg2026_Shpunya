@@ -1,5 +1,3 @@
-QMAKE_LFLAGS += -F/opt/homebrew/lib
-
 QT += core network widgets gui
 
 CONFIG += c++11 console
@@ -16,7 +14,8 @@ SOURCES += \
     registrationform.cpp \
     singletonclient.cpp \
     statisticwindow.cpp \
-    task1.cpp
+    task1.cpp \
+    task3.cpp
 
 HEADERS += \
     clientfunctions.h \
@@ -26,11 +25,14 @@ HEADERS += \
     singletonclient.h \
     statisticwindow.h \
     task1.h \
-    ui_task1.h
+    ui_task1.h \
+    task3.h \
+    ui_task3.h
 
 FORMS += \
     loginform.ui \
     mainwindow.ui \
     registrationform.ui \
     statisticwindow.ui \
-    task1.ui
+    task1.ui \
+    task3.ui

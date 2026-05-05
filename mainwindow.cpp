@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "singletonclient.h"
 #include "task1.h"
+#include "task3.h"
 #include "statisticwindow.h"
 #include <QDebug>
 #include <QMessageBox>
@@ -59,6 +60,16 @@ void MainWindow::on_pushButton_2_clicked()
 
     // окно
     Task1 *taskWindow = new Task1(m_currentLogin, 1);
+    taskWindow->setAttribute(Qt::WA_DeleteOnClose);
+    taskWindow->show();
+}
+
+// Обработчик для 3 задачи
+void MainWindow::on_pushButton_4_clicked()
+{
+    qDebug() << "Task 3 button clicked";
+
+    Task3 *taskWindow = new Task3(m_currentLogin, 3);
     taskWindow->setAttribute(Qt::WA_DeleteOnClose);
     taskWindow->show();
 }

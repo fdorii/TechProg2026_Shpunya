@@ -398,7 +398,7 @@ background-color: rgb(255, 244, 254);</string>
     </property>
     <property name="styleSheet">
      <string notr="true">font: 27pt &quot;Comic Sans MS&quot;;
-background-color: rgb(243, 236, 255);</string>
+background-color: rgb(226, 234, 254);</string>
     </property>
     <property name="text">
      <string>3 задача</string>
