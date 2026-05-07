@@ -10,7 +10,6 @@ SingletonClient::SingletonClient(QObject *parent)
 
     mTcpSocket = new QTcpSocket(this);
 
-    // Подключаем сигналы
     connect(mTcpSocket, &QTcpSocket::readyRead, this, &SingletonClient::slotServerRead);
     connect(mTcpSocket, &QTcpSocket::connected, this, &SingletonClient::onConnected);
     connect(mTcpSocket, &QTcpSocket::disconnected, this, &SingletonClient::onDisconnected);
@@ -53,8 +52,7 @@ void SingletonClient::send_msg_to_server(QString query)
 {
     if (mTcpSocket && mTcpSocket->state() == QTcpSocket::ConnectedState) {
         QByteArray data = query.toUtf8();
-        data.append('\x01');  // ВАЖНО! Добавляем маркер конца сообщения
-
+        data.append('\x01');
         mTcpSocket->write(data);
         mTcpSocket->flush();
         qDebug() << "Sent to server:" << query;
@@ -66,28 +64,31 @@ void SingletonClient::send_msg_to_server(QString query)
 
 void SingletonClient::slotServerRead()
 {
-    // Сервер может отправлять данные частями, накапливаем их
-    while (mTcpSocket->bytesAvailable() > 0) {
-        QByteArray array = mTcpSocket->readAll();
+    // Добавляем все полученные данные в буфер
+    QByteArray newData = mTcpSocket->readAll();
+    qDebug() << "Buffer received:" << newData;
 
-        // Добавляем в буфер
-        m_readBuffer.append(array);
+    m_readBuffer.append(newData);
 
-        // Проверяем, есть ли маркер конца сообщения
-        int endIndex = m_readBuffer.indexOf('\x01');
-        while (endIndex != -1) {
-            // Извлекаем сообщение до маркера
-            QByteArray message = m_readBuffer.left(endIndex);
-            m_readBuffer.remove(0, endIndex + 1);
+    // Обрабатываем все полные сообщения в буфере
+    while (m_readBuffer.contains('\n')) {
+        int endIndex = m_readBuffer.indexOf('\n');
 
+        // Извлекаем сообщение до \n
+        QByteArray message = m_readBuffer.left(endIndex).trimmed();
+        m_readBuffer.remove(0, endIndex + 1);
+
+        if (!message.isEmpty()) {
             QString msg = QString::fromUtf8(message);
             m_lastMessage = msg;
 
-            qDebug() << "Received from server:" << msg;
-            emit msg_from_server(msg);
-
-            // Ищем следующее сообщение
-            endIndex = m_readBuffer.indexOf('\x01');
+            // Пропускаем приветственное сообщение сервера
+            if (!msg.contains("Hello, World") && !msg.contains("echo server")) {
+                qDebug() << "Message from server:" << msg;
+                emit msg_from_server(msg);
+            } else {
+                qDebug() << "Skipping server greeting:" << msg;
+            }
         }
     }
 }

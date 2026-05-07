@@ -23,6 +23,7 @@ private:
     SingletonClient& operator=(SingletonClient&) = delete;
     ~SingletonClient();
 
+
 public:
     static SingletonClient* getInstance();
     static void destroyInstance();

@@ -15,6 +15,10 @@ public:
     explicit LogInForm(QWidget *parent = nullptr);
     ~LogInForm();
 
+    void clearLoginField();
+    void clearPasswordField();
+    void clearAllFields();
+
 signals:
     void loginAttempt(QString login, QString password);
     void switchToRegistration();
@@ -26,6 +30,8 @@ private slots:
 
 private:
     Ui::LogInForm *ui;
+
+    bool validateInput(QString login, QString password);
 };
 
 #endif // LOGINFORM_H

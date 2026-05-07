@@ -14,7 +14,10 @@ SOURCES += \
     mainwindow.cpp \
     registrationform.cpp \
     singletonclient.cpp \
-    statisticwindow.cpp
+    statisticwindow.cpp \
+    task2form.cpp\
+    task1.cpp\
+    task3.cpp
 
 HEADERS += \
     clientfunctions.h \
@@ -22,10 +25,16 @@ HEADERS += \
     mainwindow.h \
     registrationform.h \
     singletonclient.h \
-    statisticwindow.h
+    statisticwindow.h \
+    task2form.h\
+    task1.h\
+    task3.h
 
 FORMS += \
     loginform.ui \
     mainwindow.ui \
     registrationform.ui \
-    statisticwindow.ui
+    statisticwindow.ui \
+    task2form.ui\
+    task1.ui\
+    task3.ui

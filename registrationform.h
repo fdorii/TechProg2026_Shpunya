@@ -22,7 +22,7 @@ signals:
 private slots:
     void on_buttonBox_accepted();
     void on_buttonBox_rejected();
-    void on_to_authForm_clicked();  // Кнопка перехода к авторизации
+    void on_to_authForm_clicked();
 
 private:
     Ui::RegistrationForm *ui;

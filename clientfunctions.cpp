@@ -2,22 +2,23 @@
 #include "registrationform.h"
 #include "loginform.h"
 #include "mainwindow.h"
-#include "statisticwindow.h"
 #include "singletonclient.h"
 #include <QDebug>
-#include <QMessageBox>
 #include <QApplication>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QMessageBox>
 
 ClientFunctions::ClientFunctions(QObject *parent)
     : QObject(parent)
 {
     qDebug() << "ClientFunctions constructor called";
 
+    // Получаем экземпляр синглтона клиента
     client = SingletonClient::getInstance();
     setupClientConnections();
 
+    // Первым показываем окно регистрации
     showRegistration();
 }
 
@@ -25,6 +26,7 @@ ClientFunctions::~ClientFunctions()
 {
     qDebug() << "ClientFunctions destructor called";
 
+    // Очищаем окна
     if (ui_reg) ui_reg->deleteLater();
     if (ui_login) ui_login->deleteLater();
     if (ui_main) ui_main->deleteLater();
@@ -34,7 +36,7 @@ void ClientFunctions::setupClientConnections()
 {
     if (!client) return;
 
-    // сигналы от клиента
+    // Подключаем сигналы от клиента
     connect(client, &SingletonClient::msg_from_server,
             this, &ClientFunctions::handleServerMessage);
     connect(client, &SingletonClient::connected,
@@ -43,19 +45,20 @@ void ClientFunctions::setupClientConnections()
             this, &ClientFunctions::handleServerDisconnected);
     connect(client, &SingletonClient::errorOccurred,
             this, &ClientFunctions::handleServerError);
+
+    // Если клиент уже подключен
+    if (client->isConnected()) {
+        handleServerConnected();
+    }
 }
 
 void ClientFunctions::sendAuthToServer(QString login, QString password, bool isRegistration)
 {
-    // JSON сообщение для сервера
-    QJsonObject json;
-    json["type"] = isRegistration ? "register" : "login";
-    json["login"] = login;
-    json["password"] = password;
+    // Формат для сервера
+    QString command = isRegistration ? "register" : "login";
+    QString message = QString("%1 %2 %3").arg(command, login, password);
 
-    QJsonDocument doc(json);
-    QString message = doc.toJson(QJsonDocument::Compact);
-
+    qDebug() << "Sending to server:" << message;
     client->send_msg_to_server(message);
 }
 
@@ -71,16 +74,27 @@ void ClientFunctions::authorized(QString login, QString password)
         // Отправляем данные на сервер
         sendAuthToServer(login, password, true);
 
+        // Закрываем окно регистрации
         if (ui_reg) {
             ui_reg->hide();
         }
 
+        // Открываем главное окно
         qDebug() << "Registration complete, opening main window";
 
         if (!ui_main) {
             ui_main = new MainWindow();
             ui_main->setAttribute(Qt::WA_DeleteOnClose);
 
+            // Подключаем сигналы от клиента к главному окну
+            connect(client, &SingletonClient::msg_from_server,
+                    ui_main, &MainWindow::appendServerMessage);
+            connect(client, &SingletonClient::connected,
+                    ui_main, [this]() { ui_main->updateConnectionStatus(true); });
+            connect(client, &SingletonClient::disconnected,
+                    ui_main, [this]() { ui_main->updateConnectionStatus(false); });
+
+            // При закрытии главного окна показываем окно регистрации
             connect(ui_main, &MainWindow::destroyed, this, [this]() {
                 ui_main = nullptr;
                 qDebug() << "Main window closed, showing registration form";
@@ -104,11 +118,21 @@ void ClientFunctions::handleLoginAttempt(QString login, QString password)
         // Отправляем на сервер
         sendAuthToServer(login, password, false);
 
+        // Закрываем окно входа
         if (ui_login) ui_login->hide();
 
+        // Показываем главное окно
         if (!ui_main) {
             ui_main = new MainWindow();
             ui_main->setAttribute(Qt::WA_DeleteOnClose);
+
+            // Подключаем сигналы от клиента к главному окну
+            connect(client, &SingletonClient::msg_from_server,
+                    ui_main, &MainWindow::appendServerMessage);
+            connect(client, &SingletonClient::connected,
+                    ui_main, [this]() { ui_main->updateConnectionStatus(true); });
+            connect(client, &SingletonClient::disconnected,
+                    ui_main, [this]() { ui_main->updateConnectionStatus(false); });
 
             connect(ui_main, &MainWindow::destroyed, this, [this]() {
                 ui_main = nullptr;
@@ -118,8 +142,52 @@ void ClientFunctions::handleLoginAttempt(QString login, QString password)
         }
 
         ui_main->show();
+
+        // Показываем сообщение об успешном входе
+        QMessageBox::information(ui_main,
+                                "Вход выполнен",
+                                QString("Добро пожаловать, %1!").arg(login));
+
     } else {
         qDebug() << "Login failed: Invalid credentials";
+
+        // Проверяем, что именно не так
+        if (!registeredUsers.contains(login)) {
+            // Аккаунт не найден
+            QMessageBox::critical(ui_login,
+                                "Ошибка входа",
+                                QString("Аккаунт с логином \"%1\" не найден!\n\n"
+                                       "Проверьте правильность ввода логина или "
+                                       "зарегистрируйте новый аккаунт.").arg(login));
+
+            // Предлагаем перейти к регистрации
+            QMessageBox::StandardButton reply = QMessageBox::question(
+                ui_login,
+                "Регистрация",
+                "Хотите зарегистрировать новый аккаунт?",
+                QMessageBox::Yes | QMessageBox::No
+            );
+
+            if (reply == QMessageBox::Yes) {
+                showRegistration();
+            } else {
+                // Очищаем поля и ставим фокус на логин
+                // Нужно добавить методы в LogInForm
+            }
+
+        } else {
+            // Неверный пароль
+            QMessageBox::critical(ui_login,
+                                "Ошибка входа",
+                                "Неверный пароль!\n\n"
+                                "Проверьте правильность ввода пароля.");
+
+            // Очищаем поле пароля и ставим фокус
+            if (ui_login) {
+                // Добавим методы очистки полей в LogInForm
+            }
+        }
+
         emit serverMessage("Login failed: Invalid credentials");
     }
 }
@@ -129,16 +197,13 @@ void ClientFunctions::handleServerMessage(QString msg)
     qDebug() << "Server message received:" << msg;
     emit serverMessage(msg);
 
+    // Убираем лишние пробелы
     msg = msg.trimmed();
 
+    // Проверяем ответ сервера
     if (msg == "error" || msg.contains("error", Qt::CaseInsensitive)) {
         qDebug() << "Server returned error!";
         emit serverMessage("Server error: Invalid request");
-
-        if (ui_main) {
-            QMessageBox::warning(ui_main, "Server Error",
-                               "Server returned an error. Please check your data.");
-        }
         return;
     }
 
@@ -146,24 +211,7 @@ void ClientFunctions::handleServerMessage(QString msg)
         msg.contains("ok", Qt::CaseInsensitive)) {
         qDebug() << "Server operation successful";
         emit serverMessage("Server: Operation successful");
-
-        if (ui_reg && msg.contains("register", Qt::CaseInsensitive)) {
-            QMessageBox::information(nullptr, "Success", "Registration successful!");
-        }
         return;
-    }
-
-    QJsonDocument doc = QJsonDocument::fromJson(msg.toUtf8());
-    if (doc.isObject()) {
-        QJsonObject json = doc.object();
-        QString status = json["status"].toString();
-        QString message = json["message"].toString();
-
-        if (status == "success") {
-            qDebug() << "Server: Success -" << message;
-        } else {
-            qDebug() << "Server: Error -" << message;
-        }
     }
 }
 
@@ -171,14 +219,7 @@ void ClientFunctions::handleServerConnected()
 {
     qDebug() << "Connected to server!";
     emit serverMessage("Connected to server");
-
-    // Если есть главное окно, обновляем статус
-    if (ui_main) {
-        // Можно добавить метод updateConnectionStatus в MainWindow
-        // ui_main->updateConnectionStatus(true);
-    }
 }
-
 
 void ClientFunctions::handleServerDisconnected()
 {
@@ -190,6 +231,17 @@ void ClientFunctions::handleServerError(QString error)
 {
     qDebug() << "Server error:" << error;
     emit serverMessage("Server error: " + error);
+
+    // Показываем ошибку пользователю
+    QWidget *parent = nullptr;
+    if (ui_main) parent = ui_main;
+    else if (ui_reg) parent = ui_reg;
+    else if (ui_login) parent = ui_login;
+
+    if (parent) {
+        QMessageBox::warning(parent, "Connection Error",
+                           "Server error: " + error);
+    }
 }
 
 void ClientFunctions::showLogin()

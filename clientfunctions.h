@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QMap>
 
+// Forward declarations
 class MainWindow;
 class RegistrationForm;
 class LogInForm;
@@ -36,7 +37,6 @@ private:
     LogInForm *ui_login = nullptr;
     SingletonClient *client = nullptr;
 
-    // Хранилище зарегистрированных пользователей (временное)
     QMap<QString, QString> registeredUsers;
 
     void setupClientConnections();

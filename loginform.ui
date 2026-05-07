@@ -73,6 +73,9 @@
         <family>Century Gothic</family>
        </font>
       </property>
+      <property name="clearButtonEnabled">
+       <bool>true</bool>
+      </property>
      </widget>
     </item>
     <item>
@@ -121,6 +124,9 @@
        <font>
         <family>Comic Sans MS</family>
        </font>
+      </property>
+      <property name="clearButtonEnabled">
+       <bool>true</bool>
       </property>
      </widget>
     </item>

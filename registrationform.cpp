@@ -1,6 +1,8 @@
 #include "registrationform.h"
 #include "ui_registrationform.h"
 #include <QDebug>
+#include <QMessageBox>
+#include <QRegularExpression>
 
 RegistrationForm::RegistrationForm(QWidget *parent) :
     QWidget(parent),
@@ -25,16 +27,24 @@ void RegistrationForm::on_buttonBox_accepted()
 
     if (login.isEmpty()) {
         qDebug() << "Login is empty!";
+        QMessageBox::warning(this, "Ошибка регистрации!", "Поле ввода логина не может быть пустым!\nПожалуйста, введите логин.");
+        ui->input_login->setFocus();
         return;
     }
 
     if (password.isEmpty()) {
         qDebug() << "Password is empty!";
+        QMessageBox::warning(this, "Ошибка регистрации!", "Поле ввода пароля не может быть пустым!\nПожалуйста, введите пароль.");
+        ui->input_login->setFocus();
         return;
     }
 
     if (password.length() < 6) {
-        qDebug() << "Password too short!";
+        QMessageBox::warning(this,
+                                   "Ошибка регистрации!",
+                                   "Пароль слишком короткий!\nМинимальная длина: 6 символов.");
+        ui->input_password->setFocus();
+        ui->input_password->setSelection(0, password.length());
         return;
     }
 

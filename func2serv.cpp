@@ -1,13 +1,52 @@
 #include "func2serv.h"
 #include "database.h"
 #include <QDebug>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 QByteArray parsing(QString data_from_client)
 {
     qDebug() << "Parsing:" << data_from_client;
+
+    // Пробуем распарсить как JSON
+    QJsonDocument doc = QJsonDocument::fromJson(data_from_client.toUtf8());
+
+    if (doc.isObject()) {
+        QJsonObject json = doc.object();
+        QString type = json["type"].toString();
+        QString login = json["login"].toString();
+        QString password = json["password"].toString();
+
+        qDebug() << "JSON parsed - Type:" << type << "Login:" << login;
+
+        if (type == "login" || type == "auth") {
+            return auth(login, password).toUtf8();
+        }
+        else if (type == "register" || type == "reg") {
+            return reg(login, password).toUtf8();
+        }
+        else if (type == "get_stats") {
+            return get_stats(login).toUtf8();
+        }
+        else if (type == "get_tasks") {
+            return get_tasks(login).toUtf8();
+        }
+        else if (type == "get_task") {
+            QString task_id = json["task_id"].toString();
+            return get_task(login, task_id).toUtf8();
+        }
+        else if (type == "check_answer") {
+            QString task_id = json["task_id"].toString();
+            QString answer = json["answer"].toString();
+            return check_answer(login, task_id, answer).toUtf8();
+        }
+    }
      
     QStringList data_from_client_list = data_from_client.split(QLatin1Char(' '));
     
+    if (data_from_client_list.isEmpty()) {
+        return QByteArray("error: empty request\n");
+    }
     QString nameOfFunc = data_from_client_list.front();
     data_from_client_list.pop_front(); 
     
