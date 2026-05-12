@@ -38,7 +38,7 @@ void ClientFunctions::setupClientConnections()
 
     // Подключаем сигналы от клиента
     connect(client, &SingletonClient::msg_from_server,
-            this, &ClientFunctions::handleServerMessage);
+            this, &ClientFunctions::onServerMessage);
     connect(client, &SingletonClient::connected,
             this, &ClientFunctions::handleServerConnected);
     connect(client, &SingletonClient::disconnected,
@@ -52,167 +52,98 @@ void ClientFunctions::setupClientConnections()
     }
 }
 
-void ClientFunctions::sendAuthToServer(QString login, QString password, bool isRegistration)
+void ClientFunctions::sendToServer(const QString &type, const QString &login, const QString &password)
 {
-    // Формат для сервера
-    QString command = isRegistration ? "register" : "login";
-    QString message = QString("%1 %2 %3").arg(command, login, password);
+    if (!client->isConnected()) {
+        QMessageBox::warning(nullptr,
+                                   "Connection Error",
+                                   "Server is not connected!");
+        m_authState = AuthState::None;
+        return;
+    }
 
-    qDebug() << "Sending to server:" << message;
-    client->send_msg_to_server(message);
+    QString data;
+
+    // Формат для сервера: "команда логин пароль"
+    if (type == "register" || type == "reg") {
+        data = QString("reg %1 %2").arg(login, password);
+    } else if (type == "login" || type == "auth") {
+        data = QString("auth %1 %2").arg(login, password);
+    } else {
+        // Другие команды в JSON формате
+        QJsonObject json;
+        json["type"] = type;
+        json["login"] = login;
+        json["password"] = password;
+        data = QJsonDocument(json).toJson(QJsonDocument::Compact);
+    }
+
+    qDebug() << "[Send to Server]" << data;
+    client->send_msg_to_server(data);
 }
 
 void ClientFunctions::authorized(QString login, QString password)
 {
-    qDebug() << "Registration - Login:" << login;
+    qDebug() << "[Registration] Login:" << login;
 
-    if (!login.isEmpty() && !password.isEmpty()) {
-        // Сохраняем пользователя локально
-        registeredUsers[login] = password;
-        qDebug() << "User registered locally. Total users:" << registeredUsers.size();
-
-        // Отправляем данные на сервер
-        sendAuthToServer(login, password, true);
-
-        // Закрываем окно регистрации
-        if (ui_reg) {
-            ui_reg->hide();
+    if (login.isEmpty() || password.isEmpty()) {
+            QMessageBox::warning(nullptr, "Error", "Login or password is empty!");
+            return;
         }
 
-        // Открываем главное окно
-        qDebug() << "Registration complete, opening main window";
+    // Сохраняем для ответа сервера
+    m_pendingLogin = login;
+    m_pendingPassword = password;
+    m_authState = AuthState::Registering;
 
-        if (!ui_main) {
-            ui_main = new MainWindow();
-            ui_main->setAttribute(Qt::WA_DeleteOnClose);
+    // Сохраняем локально
+    registeredUsers[login] = password;
+    qDebug() << "User registered locally. Total users:" << registeredUsers.size();
 
-            // Подключаем сигналы от клиента к главному окну
-            connect(client, &SingletonClient::msg_from_server,
-                    ui_main, &MainWindow::appendServerMessage);
-            connect(client, &SingletonClient::connected,
-                    ui_main, [this]() { ui_main->updateConnectionStatus(true); });
-            connect(client, &SingletonClient::disconnected,
-                    ui_main, [this]() { ui_main->updateConnectionStatus(false); });
+    // Отправляем данные на сервер
+    sendToServer("reg", login, password);
 
-            // При закрытии главного окна показываем окно регистрации
-            connect(ui_main, &MainWindow::destroyed, this, [this]() {
-                ui_main = nullptr;
-                qDebug() << "Main window closed, showing registration form";
-                showRegistration();
-            });
-        }
-
-        ui_main->show();
-        emit auth_ok();
-    }
+    qDebug() << "Waiting for server response...";
 }
 
 void ClientFunctions::handleLoginAttempt(QString login, QString password)
 {
-    qDebug() << "Login attempt - Login:" << login;
+    qDebug() << "[Login] Login:" << login;
 
-    // Проверяем локально
-    if (registeredUsers.contains(login) && registeredUsers[login] == password) {
-        qDebug() << "Login successful locally!";
-
-        // Отправляем на сервер
-        sendAuthToServer(login, password, false);
-
-        // Закрываем окно входа
-        if (ui_login) ui_login->hide();
-
-        // Показываем главное окно
-        if (!ui_main) {
-            ui_main = new MainWindow();
-            ui_main->setAttribute(Qt::WA_DeleteOnClose);
-
-            // Подключаем сигналы от клиента к главному окну
-            connect(client, &SingletonClient::msg_from_server,
-                    ui_main, &MainWindow::appendServerMessage);
-            connect(client, &SingletonClient::connected,
-                    ui_main, [this]() { ui_main->updateConnectionStatus(true); });
-            connect(client, &SingletonClient::disconnected,
-                    ui_main, [this]() { ui_main->updateConnectionStatus(false); });
-
-            connect(ui_main, &MainWindow::destroyed, this, [this]() {
-                ui_main = nullptr;
-                qDebug() << "Main window closed, showing login form";
-                showLogin();
-            });
+    if (login.isEmpty() || password.isEmpty()) {
+            QMessageBox::warning(nullptr, "Error", "Login or password is empty!");
+            return;
         }
 
-        ui_main->show();
+    // Сохраняем для ответа сервера
+    m_pendingLogin = login;
+    m_pendingPassword = password;
+    m_authState = AuthState::LoggingIn;
 
-        // Показываем сообщение об успешном входе
-        QMessageBox::information(ui_main,
-                                "Вход выполнен",
-                                QString("Добро пожаловать, %1!").arg(login));
+    // Отправляем на сервер
+    sendToServer("auth", login, password);
 
-    } else {
-        qDebug() << "Login failed: Invalid credentials";
-
-        // Проверяем, что именно не так
-        if (!registeredUsers.contains(login)) {
-            // Аккаунт не найден
-            QMessageBox::critical(ui_login,
-                                "Ошибка входа",
-                                QString("Аккаунт с логином \"%1\" не найден!\n\n"
-                                       "Проверьте правильность ввода логина или "
-                                       "зарегистрируйте новый аккаунт.").arg(login));
-
-            // Предлагаем перейти к регистрации
-            QMessageBox::StandardButton reply = QMessageBox::question(
-                ui_login,
-                "Регистрация",
-                "Хотите зарегистрировать новый аккаунт?",
-                QMessageBox::Yes | QMessageBox::No
-            );
-
-            if (reply == QMessageBox::Yes) {
-                showRegistration();
-            } else {
-                // Очищаем поля и ставим фокус на логин
-                // Нужно добавить методы в LogInForm
-            }
-
-        } else {
-            // Неверный пароль
-            QMessageBox::critical(ui_login,
-                                "Ошибка входа",
-                                "Неверный пароль!\n\n"
-                                "Проверьте правильность ввода пароля.");
-
-            // Очищаем поле пароля и ставим фокус
-            if (ui_login) {
-                // Добавим методы очистки полей в LogInForm
-            }
-        }
-
-        emit serverMessage("Login failed: Invalid credentials");
-    }
+    qDebug() << "Waiting for server response...";
 }
 
-void ClientFunctions::handleServerMessage(QString msg)
+
+void ClientFunctions::onServerMessage(const QString &msg)
 {
-    qDebug() << "Server message received:" << msg;
+    qDebug() << "[Server Message]" << msg.trimmed();
     emit serverMessage(msg);
 
-    // Убираем лишние пробелы
-    msg = msg.trimmed();
+    // Если не ожидаем ответа - просто транслируем сообщение
+    if (m_authState == AuthState::None) return;
 
-    // Проверяем ответ сервера
-    if (msg == "error" || msg.contains("error", Qt::CaseInsensitive)) {
-        qDebug() << "Server returned error!";
-        emit serverMessage("Server error: Invalid request");
-        return;
-    }
+    const QString response = msg.trimmed();
 
-    if (msg == "success" || msg.contains("success", Qt::CaseInsensitive) ||
-        msg.contains("ok", Qt::CaseInsensitive)) {
-        qDebug() << "Server operation successful";
-        emit serverMessage("Server: Operation successful");
-        return;
-    }
+    // Проверяем успех/неудачу
+    bool success = response.contains("auth+") ||
+                   response.contains("reg+") ||
+                   response.contains("success") ||
+                   response.contains("correct");
+
+    processAuthResponse(success, response);
 }
 
 void ClientFunctions::handleServerConnected()
@@ -242,6 +173,52 @@ void ClientFunctions::handleServerError(QString error)
         QMessageBox::warning(parent, "Connection Error",
                            "Server error: " + error);
     }
+}
+
+void ClientFunctions::processAuthResponse(bool success, const QString &message)
+{
+    qDebug() << "[Process Response] Success:" << success << "Message:" << message;
+
+    if (m_authState == AuthState::Registering) {
+        if (success) {
+            QMessageBox::information(nullptr,
+                                   "Регистрация",
+                                   "Регистрация успешно завершена!\nТеперь вы можете войти.");
+            showLogin();
+        } else {
+            QMessageBox::warning(nullptr,
+                               "Ошибка регистрации",
+                               message.isEmpty() ? "Регистрация не удалась." : message);
+            if (ui_reg) ui_reg->show();
+        }
+    }
+    else if (m_authState == AuthState::LoggingIn) {
+        if (success) {
+            qDebug() << "Login successful!";
+
+            if (!registeredUsers.contains(m_pendingLogin)) {
+                registeredUsers[m_pendingLogin] = m_pendingPassword;
+            }
+
+            if (ui_login) ui_login->hide();
+
+            openMainWindow();
+        } else {
+            qDebug() << "Login failed!";
+            QMessageBox::warning(nullptr,
+                               "Ошибка входа",
+                               message.isEmpty() ? "Неверный логин или пароль." : message);
+
+            if (ui_login) {
+                ui_login->show();
+                ui_login->clearPasswordField();
+            }
+        }
+    }
+
+    m_authState = AuthState::None;
+    m_pendingLogin.clear();
+    m_pendingPassword.clear();
 }
 
 void ClientFunctions::showLogin()
@@ -295,4 +272,41 @@ void ClientFunctions::showRegistration()
 
     ui_reg->show();
     qDebug() << "RegistrationForm shown";
+}
+
+void ClientFunctions::openMainWindow()
+{
+    qDebug() << "[Open MainWindow]";
+
+    if (!ui_main) {
+        ui_main = new MainWindow();
+        ui_main->setAttribute(Qt::WA_DeleteOnClose);
+
+        // Подключаем серверные сигналы к главному окну
+        connect(client, &SingletonClient::msg_from_server,
+                ui_main, &MainWindow::appendServerMessage);
+        connect(client, &SingletonClient::connected,
+                ui_main, [this]() {
+                    if (ui_main) ui_main->updateConnectionStatus(true);
+                });
+        connect(client, &SingletonClient::disconnected,
+                ui_main, [this]() {
+                    if (ui_main) ui_main->updateConnectionStatus(false);
+                });
+
+        // При закрытии главного окна возвращаемся на вход
+        connect(ui_main, &MainWindow::destroyed, this, [this]() {
+            ui_main = nullptr;
+            qDebug() << "MainWindow closed, returning to login";
+            showLogin();
+        });
+    }
+
+    ui_main->show();
+
+    // Показываем приветствие
+    QMessageBox::information(ui_main, "Вход выполнен",
+                           QString("Добро пожаловать, %1!").arg(m_pendingLogin));
+
+    emit auth_ok();
 }

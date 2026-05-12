@@ -21,7 +21,7 @@
     <property name="geometry">
      <rect>
       <x>580</x>
-      <y>30</y>
+      <y>20</y>
       <width>131</width>
       <height>51</height>
      </rect>
@@ -32,9 +32,9 @@
        <colorrole role="Button">
         <brush brushstyle="SolidPattern">
          <color alpha="255">
-          <red>255</red>
-          <green>255</green>
-          <blue>255</blue>
+          <red>161</red>
+          <green>139</green>
+          <blue>190</blue>
          </color>
         </brush>
        </colorrole>
@@ -70,9 +70,9 @@
        <colorrole role="Button">
         <brush brushstyle="SolidPattern">
          <color alpha="255">
-          <red>255</red>
-          <green>255</green>
-          <blue>255</blue>
+          <red>161</red>
+          <green>139</green>
+          <blue>190</blue>
          </color>
         </brush>
        </colorrole>
@@ -108,9 +108,9 @@
        <colorrole role="Button">
         <brush brushstyle="SolidPattern">
          <color alpha="255">
-          <red>255</red>
-          <green>255</green>
-          <blue>255</blue>
+          <red>161</red>
+          <green>139</green>
+          <blue>190</blue>
          </color>
         </brush>
        </colorrole>
@@ -163,9 +163,9 @@ background-clor: rgb(255, 255, 255);</string>
    <widget class="QPushButton" name="logoutButton">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>30</y>
-      <width>211</width>
+      <x>20</x>
+      <y>20</y>
+      <width>281</width>
       <height>51</height>
      </rect>
     </property>
@@ -185,12 +185,12 @@ font: 18pt &quot;Comic Sans MS&quot;;</string>
      <string>Сменить пользователя</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_5">
+   <widget class="QPushButton" name="StatisticButton">
     <property name="geometry">
      <rect>
-      <x>580</x>
+      <x>570</x>
       <y>440</y>
-      <width>131</width>
+      <width>141</width>
       <height>51</height>
      </rect>
     </property>
@@ -234,8 +234,8 @@ background-clor: rgb(255, 255, 255);</string>
        <colorrole role="Base">
         <brush brushstyle="SolidPattern">
          <color alpha="255">
-          <red>231</red>
-          <green>250</green>
+          <red>255</red>
+          <green>255</green>
           <blue>255</blue>
          </color>
         </brush>
@@ -243,8 +243,8 @@ background-clor: rgb(255, 255, 255);</string>
        <colorrole role="Window">
         <brush brushstyle="SolidPattern">
          <color alpha="255">
-          <red>231</red>
-          <green>250</green>
+          <red>255</red>
+          <green>255</green>
           <blue>255</blue>
          </color>
         </brush>
@@ -272,8 +272,8 @@ background-clor: rgb(255, 255, 255);</string>
        <colorrole role="Base">
         <brush brushstyle="SolidPattern">
          <color alpha="255">
-          <red>231</red>
-          <green>250</green>
+          <red>255</red>
+          <green>255</green>
           <blue>255</blue>
          </color>
         </brush>
@@ -281,8 +281,8 @@ background-clor: rgb(255, 255, 255);</string>
        <colorrole role="Window">
         <brush brushstyle="SolidPattern">
          <color alpha="255">
-          <red>231</red>
-          <green>250</green>
+          <red>255</red>
+          <green>255</green>
           <blue>255</blue>
          </color>
         </brush>
@@ -310,8 +310,8 @@ background-clor: rgb(255, 255, 255);</string>
        <colorrole role="Base">
         <brush brushstyle="SolidPattern">
          <color alpha="255">
-          <red>231</red>
-          <green>250</green>
+          <red>255</red>
+          <green>255</green>
           <blue>255</blue>
          </color>
         </brush>
@@ -319,8 +319,8 @@ background-clor: rgb(255, 255, 255);</string>
        <colorrole role="Window">
         <brush brushstyle="SolidPattern">
          <color alpha="255">
-          <red>231</red>
-          <green>250</green>
+          <red>255</red>
+          <green>255</green>
           <blue>255</blue>
          </color>
         </brush>

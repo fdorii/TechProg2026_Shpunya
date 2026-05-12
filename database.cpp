@@ -11,8 +11,9 @@ DataBase::DataBase()
     // Подключаемся к базе
     db = QSqlDatabase::addDatabase("QSQLITE");
     // Путь задаётся через переменную окружения DB_PATH или по умолчанию /app/data/SQLite.db
-    QString dbPath = qEnvironmentVariable("DB_PATH", "/app/data/SQLite.db");
+    QString dbPath = QStringLiteral(PROJECT_ROOT) + "/SQLite.db";
     db.setDatabaseName(dbPath);
+    qDebug() << "Using database file:" << db.databaseName();
 
     if (!db.open()) {
         qDebug() << "Database error:" << db.lastError().text();

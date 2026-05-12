@@ -128,9 +128,3 @@ void MainWindow::on_StatisticButton_clicked()
     statisticForm->activateWindow();
 }
 
-
-void MainWindow::on_statisticButton_clicked()
-{
-
-}
-

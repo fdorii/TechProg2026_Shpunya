@@ -6,6 +6,9 @@
 
 QByteArray parsing(QString data_from_client)
 {
+    // Удаляем завершающий \x01, если он есть
+    if (data_from_client.endsWith('\x01'))
+        data_from_client.chop(1);
     qDebug() << "Parsing:" << data_from_client;
 
     // Пробуем распарсить как JSON

@@ -36,6 +36,8 @@ private slots:
 
     void on_StatisticButton_clicked();
 
+    void on_statisticButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     Task2Form *taskForm = nullptr;
