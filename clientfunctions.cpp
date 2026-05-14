@@ -279,7 +279,7 @@ void ClientFunctions::openMainWindow()
     qDebug() << "[Open MainWindow]";
 
     if (!ui_main) {
-        ui_main = new MainWindow();
+        ui_main = new MainWindow(m_pendingLogin);
         ui_main->setAttribute(Qt::WA_DeleteOnClose);
 
         // Подключаем серверные сигналы к главному окну

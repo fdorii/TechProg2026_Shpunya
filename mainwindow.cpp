@@ -8,13 +8,13 @@
 #include <QDebug>
 #include <QMessageBox>
 
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(const QString &login, QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    m_currentLogin(login)
 {
     ui->setupUi(this);
-    qDebug() << "MainWindow created and shown";
-    m_currentLogin = "sho"; // заглушка
+    qDebug() << "MainWindow created for user:" << m_currentLogin;
 }
 
 MainWindow::~MainWindow()
@@ -39,7 +39,7 @@ void MainWindow::on_pushButton_3_clicked()
     qDebug() << "Opening Task2Form";
 
     if (!taskForm) {
-        taskForm = new Task2Form();
+        taskForm = new Task2Form(m_currentLogin, 2);
         taskForm->setAttribute(Qt::WA_DeleteOnClose);
 
         connect(taskForm, &Task2Form::destroyed, this, [this]() {
@@ -50,8 +50,6 @@ void MainWindow::on_pushButton_3_clicked()
 
     taskForm->generateNewTask();
     taskForm->show();
-    taskForm->raise();
-    taskForm->activateWindow();
 }
 
 void MainWindow::on_pushButton_2_clicked()
@@ -116,7 +114,7 @@ void MainWindow::on_StatisticButton_clicked()
 {
     qDebug() << "Static button clicked";
     if (!statisticForm) {
-        statisticForm = new StatisticForm();
+        statisticForm = new StatisticForm(m_currentLogin);
         connect(statisticForm, &StatisticForm::destroyed, this, [this]() {
             statisticForm = nullptr;
             qDebug() << "StatisticForm closed";

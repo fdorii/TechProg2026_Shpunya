@@ -1,13 +1,16 @@
 #include "task2form.h"
 #include "ui_task2form.h"
+#include "singletonclient.h"
 #include <QDebug>
 #include <QMessageBox>
 #include <QTimer>
 #include <cmath>
 
-Task2Form::Task2Form(QWidget *parent) :
+Task2Form::Task2Form(const QString &login, int taskId, QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::Task2Form)
+    ui(new Ui::Task2Form),
+    m_login(login),
+    m_taskId(taskId)
 {
     ui->setupUi(this);
 
@@ -124,9 +127,11 @@ void Task2Form::on_checkButton_clicked()
         ui->answerLineEdit->selectAll();
         return;
     }
+    bool isCorrect = (std::abs(userAnswer - m_correctAnswer) < EPSILON);
+    sendResult(isCorrect); //отправляем результат на сервер
 
-    // Сравниваем с правильным ответом
-    if (std::abs(userAnswer - m_correctAnswer) < EPSILON) {
+    // Сравниваем с правильным ответом и выводим на экран пользователя
+    if (isCorrect) {
         ui->resultLabel->setText(QString("Правильно!\n\nИнтеграл ≈ %1").arg(m_correctAnswer, 0, 'f', 3));
         ui->resultLabel->setStyleSheet("color: green; font-weight: bold; font-size: 14px;");
         ui->answerLineEdit->setStyleSheet("border: 2px solid green;");
@@ -147,7 +152,7 @@ void Task2Form::on_checkButton_clicked()
                                 .arg(m_fa + m_fb)
                                 .arg(m_correctAnswer, 0, 'f', 3));
 
-        // Генерируем новую задачу через небольшое время
+        // Генерируем новую задачу c небольшим ожиданием
         QTimer::singleShot(500, this, &Task2Form::generateNewTask);
 
     } else {
@@ -164,7 +169,7 @@ void Task2Form::on_checkButton_clicked()
             hint = "Подсказка: вы близко! Проверьте арифметику.";
         }
 
-        ui->resultLabel->setText(QString("Неправильно\n\n%1").arg(hint));
+        ui->resultLabel->setText(QString("Неправильно\n%1").arg(hint));
         ui->resultLabel->setStyleSheet("color: red; font-weight: bold;");
         ui->answerLineEdit->setStyleSheet("border: 2px solid red;");
         ui->answerLineEdit->setFocus();
@@ -172,4 +177,21 @@ void Task2Form::on_checkButton_clicked()
 
         qDebug() << "Wrong answer: user=" << userAnswer << "correct=" << m_correctAnswer;
     }
+}
+
+void Task2Form::sendResult(bool solved)
+{
+    SingletonClient *client = SingletonClient::getInstance();
+    if (!client->isConnected()) {
+        qDebug() << "Cannot save result: not connected to server";
+        return;
+    }
+
+    // Формат: "save_result login task_id solved"
+    QString msg = QString("save_result %1 %2 %3")
+                      .arg(m_login)
+                      .arg(m_taskId)
+                      .arg(solved ? "1" : "0");
+    client->send_msg_to_server(msg);
+    qDebug() << "Result sent:" << msg;
 }

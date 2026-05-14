@@ -60,14 +60,17 @@
     <string>Численное интегрирование
 Метод трапеций</string>
    </property>
+   <property name="alignment">
+    <set>Qt::AlignmentFlag::AlignHCenter|Qt::AlignmentFlag::AlignTop</set>
+   </property>
   </widget>
   <widget class="QLabel" name="conditionLabel">
    <property name="geometry">
     <rect>
-     <x>90</x>
+     <x>60</x>
      <y>120</y>
-     <width>491</width>
-     <height>221</height>
+     <width>521</width>
+     <height>231</height>
     </rect>
    </property>
    <property name="font">
@@ -79,14 +82,17 @@
    <property name="text">
     <string/>
    </property>
+   <property name="alignment">
+    <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
+   </property>
   </widget>
   <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>100</x>
-     <y>340</y>
-     <width>471</width>
-     <height>121</height>
+     <x>70</x>
+     <y>360</y>
+     <width>501</width>
+     <height>101</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">

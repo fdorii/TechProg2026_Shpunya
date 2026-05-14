@@ -4,6 +4,7 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
+#include <QJsonObject>
 #include <QString>
 #include <QDebug>
 
@@ -44,6 +45,7 @@ public:
     bool reg(QString login, QString password);  // регистрация
     int  getStats(QString login);  // статистика пользователя
     bool saveResult(QString login, int taskId, bool solved);
+    QJsonObject getDetailedStats(QString login);
 
 };
 

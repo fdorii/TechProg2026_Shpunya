@@ -116,3 +116,44 @@ bool DataBase::saveResult(QString login, int taskId, bool solved)
     qDebug() << "Failed to save result:" << query.lastError().text();
     return false;
 }
+
+QJsonObject DataBase::getDetailedStats(QString login)
+{
+    QJsonObject result;
+    QSqlQuery query;
+    query.prepare(
+        "SELECT task_id, COUNT(*), SUM(solved) "
+        "FROM Results WHERE login = :login "
+        "GROUP BY task_id");
+    query.bindValue(":login", login);
+
+    if (query.exec()) {
+        while (query.next()) {
+            int taskId = query.value(0).toInt();
+            int total = query.value(1).toInt();
+            int correct = query.value(2).toInt();
+            int wrong = total - correct;
+
+            QJsonObject taskObj;
+            taskObj["total"] = total;
+            taskObj["correct"] = correct;
+            taskObj["wrong"] = wrong;
+            result[QString("task%1").arg(taskId)] = taskObj;
+        }
+    } else {
+        qDebug() << "Failed to get detailed stats:" << query.lastError().text();
+    }
+
+    // Гарантируем, что для задач 1–3 всегда есть объекты (даже если записей нет)
+    for (int i = 1; i <= 3; ++i) {
+        QString key = QString("task%1").arg(i);
+        if (!result.contains(key)) {
+            QJsonObject emptyObj;
+            emptyObj["total"] = 0;
+            emptyObj["correct"] = 0;
+            emptyObj["wrong"] = 0;
+            result[key] = emptyObj;
+        }
+    }
+    return result;
+}

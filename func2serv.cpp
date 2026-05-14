@@ -43,6 +43,10 @@ QByteArray parsing(QString data_from_client)
             QString answer = json["answer"].toString();
             return check_answer(login, task_id, answer).toUtf8();
         }
+        else if (type == "get_detailed_stats") {
+                    QJsonObject stats = DataBase::getInstance()->getDetailedStats(login);
+                    return QJsonDocument(stats).toJson(QJsonDocument::Compact);
+                }
     }
      
     QStringList data_from_client_list = data_from_client.split(QLatin1Char(' '));
@@ -77,6 +81,15 @@ QByteArray parsing(QString data_from_client)
     else if (nameOfFunc == "check_answer") {
             return check_answer(data_from_client_list.at(0), data_from_client_list.at(1), data_from_client_list.at(2)).toUtf8();
         }
+
+    else if (nameOfFunc == "save_result") {
+        if (data_from_client_list.size() < 3) return QByteArray("error: invalid params\n");
+        QString login = data_from_client_list.at(0);
+        int taskId = data_from_client_list.at(1).toInt();
+        bool solved = (data_from_client_list.at(2).toInt() == 1);
+        DataBase::getInstance()->saveResult(login, taskId, solved);
+        return QByteArray("result_saved\n");
+    }
 
     else {
             return QByteArray("error\n");

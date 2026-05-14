@@ -13,9 +13,8 @@ class Task2Form : public QWidget
     Q_OBJECT
 
 public:
-    explicit Task2Form(QWidget *parent = nullptr);
+    explicit Task2Form(const QString &login, int taskId, QWidget *parent = nullptr); // <-- новые параметры
     ~Task2Form();
-
     void generateNewTask();
 
 private slots:
@@ -28,6 +27,10 @@ private:
     double m_fa;
     double m_fb;
     double m_correctAnswer;
+
+    void sendResult(bool solved);
+    QString m_login;
+    int m_taskId;
 
     double calculateIntegral(double a, double b, double fa, double fb);
     void generateRandomTask();

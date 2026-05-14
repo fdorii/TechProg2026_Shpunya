@@ -17,7 +17,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = nullptr);
+    explicit MainWindow(const QString &login, QWidget *parent = nullptr);
     ~MainWindow();
 
 public slots:
@@ -35,8 +35,6 @@ private slots:
     void on_pushButton_4_clicked(); // 3 задача
 
     void on_StatisticButton_clicked();
-
-    void on_statisticButton_clicked();
 
 private:
     Ui::MainWindow *ui;
