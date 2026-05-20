@@ -38,8 +38,32 @@ QMAKE_CXX.INCDIRS = \
     /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include \
     /Library/Developer/CommandLineTools/usr/include
 QMAKE_CXX.LIBDIRS = \
+<<<<<<< Updated upstream
     /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib \
     /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib/swift
 QMAKE_MAC_SDK.macosx.SDKVersion = 15.5
 QMAKE_MAC_SDK.macosx.Path = /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
+=======
+    C:/User/User/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/15.2.0 \
+    C:/User/User/msys64/mingw64/lib/gcc \
+    C:/User/User/msys64/mingw64/x86_64-w64-mingw32/lib \
+    C:/User/User/msys64/mingw64/lib
+QMAKE_MAC_SDK.macosx.Path = /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
+QMAKE_MAC_SDK.macosx.SDKVersion = 15.5
+QMAKE_MAC_SDK.macx-clang.macosx.QMAKE_CC = /Library/Developer/CommandLineTools/usr/bin/clang
+QMAKE_MAC_SDK.macx-clang.macosx.QMAKE_CXX = /Library/Developer/CommandLineTools/usr/bin/clang++
+QMAKE_MAC_SDK.macx-clang.macosx.QMAKE_FIX_RPATH = \
+    /Library/Developer/CommandLineTools/usr/bin/install_name_tool \
+    -id
+QMAKE_MAC_SDK.macx-clang.macosx.QMAKE_AR = \
+    /Library/Developer/CommandLineTools/usr/bin/ar \
+    cq
+QMAKE_MAC_SDK.macx-clang.macosx.QMAKE_RANLIB = \
+    /Library/Developer/CommandLineTools/usr/bin/ranlib \
+    -s
+QMAKE_MAC_SDK.macx-clang.macosx.QMAKE_LINK = /Library/Developer/CommandLineTools/usr/bin/clang++
+QMAKE_MAC_SDK.macx-clang.macosx.QMAKE_LINK_SHLIB = /Library/Developer/CommandLineTools/usr/bin/clang++
+QMAKE_MAC_SDK.macx-clang.macosx.QMAKE_LINK_C = /Library/Developer/CommandLineTools/usr/bin/clang
+QMAKE_MAC_SDK.macx-clang.macosx.QMAKE_LINK_C_SHLIB = /Library/Developer/CommandLineTools/usr/bin/clang
+>>>>>>> Stashed changes
 QMAKE_XCODE_DEVELOPER_PATH = /Library/Developer/CommandLineTools

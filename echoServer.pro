@@ -3,7 +3,7 @@ QT -= gui
 QT += network sql
 
 
-CONFIG += c++11 console
+CONFIG += c++17
 CONFIG -= app_bundle
 
 # The following define makes your compiler emit warnings if you use
@@ -21,7 +21,7 @@ SOURCES += \
     database.cpp \
     main.cpp \
     mytcpserver.cpp \
-    func2serv.cpp 
+    func2serv.cpp
 
 
 # Default rules for deployment.
@@ -32,7 +32,11 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     database.h \
     mytcpserver.h \
+<<<<<<< Updated upstream
     func2serv.h 
+=======
+    func2serv.h
+>>>>>>> Stashed changes
 
 # macOS specific configuration
 macx {
