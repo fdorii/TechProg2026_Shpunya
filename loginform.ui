@@ -74,10 +74,16 @@
      </widget>
     </item>
     <item>
-     <widget class="QLineEdit" name="input_password">
+     <widget class="QLineEdit" name="input_login">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>21</height>
+       </size>
+      </property>
       <property name="font">
        <font>
-        <family>Comic Sans MS</family>
+        <family>Century Gothic</family>
        </font>
       </property>
      </widget>
@@ -128,16 +134,10 @@
      </widget>
     </item>
     <item>
-     <widget class="QLineEdit" name="input_login">
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>21</height>
-       </size>
-      </property>
+     <widget class="QLineEdit" name="input_password">
       <property name="font">
        <font>
-        <family>Century Gothic</family>
+        <family>Comic Sans MS</family>
        </font>
       </property>
      </widget>

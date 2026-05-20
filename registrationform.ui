@@ -72,7 +72,7 @@
        <string notr="true">font: 18pt &quot;Comic Sans MS&quot;;</string>
       </property>
       <property name="text">
-       <string>Придумайте имя пользователя;</string>
+       <string>Придумайте имя пользователя:</string>
       </property>
      </widget>
     </item>
