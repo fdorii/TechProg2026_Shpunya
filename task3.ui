@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Task3</class>
+ <widget class="QWidget" name="Task3">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>560</width>
+    <height>468</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Задача 3 - Дерево (листья)</string>
+  </property>
+
+  <!-- Заголовок -->
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
+    <rect>
+     <x>220</x>
+     <y>30</y>
+     <width>121</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">font: 18pt "Comic Sans MS";</string>
+   </property>
+   <property name="text">
+    <string>     Задача 3</string>
+   </property>
+  </widget>
+
+  <!-- Условие -->
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>90</x>
+     <y>80</y>
+     <width>381</width>
+     <height>181</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: rgb(176, 225, 252);
+border: 1px solid gray;
+font: 15pt "Comic Sans MS";</string>
+   </property>
+   <property name="text">
+    <string>Здесь будет отображаться дерево</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
+   </property>
+   <property name="wordWrap">
+    <bool>true</bool>
+   </property>
+  </widget>
+
+  <!-- Подсказка -->
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>60</x>
+     <y>290</y>
+     <width>161</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">
+font: 10pt "Comic Sans MS";</string>
+   </property>
+   <property name="text">
+    <string>Листья (через пробел):</string>
+   </property>
+  </widget>
+
+  <!-- Ввод -->
+  <widget class="QLineEdit" name="lineEdit">
+   <property name="geometry">
+    <rect>
+     <x>230</x>
+     <y>290</y>
+     <width>231</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: rgb(255, 255, 255);</string>
+   </property>
+  </widget>
+
+  <!-- Кнопка -->
+  <widget class="QPushButton" name="pushButton">
+   <property name="geometry">
+    <rect>
+     <x>180</x>
+     <y>340</y>
+     <width>191</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">
+background-color: rgb(176, 225, 252);
+font: 17pt "Comic Sans MS";</string>
+   </property>
+   <property name="text">
+    <string>Проверить</string>
+   </property>
+  </widget>
+
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
