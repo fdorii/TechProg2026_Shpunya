@@ -11,8 +11,10 @@ class Task2Form;
 class Task2Form : public QWidget
 {
     Q_OBJECT
+    friend class TestTask2Form;
 
 public:
+    explicit Task2Form(QWidget *parent = nullptr);
     explicit Task2Form(const QString &login, int taskId, QWidget *parent = nullptr); // <-- новые параметры
     ~Task2Form();
     void generateNewTask();

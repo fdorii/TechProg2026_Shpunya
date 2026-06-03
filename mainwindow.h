@@ -41,6 +41,7 @@ private:
     Task2Form *taskForm = nullptr;
     StatisticForm *statisticForm = nullptr;
     QString m_currentLogin;
+    bool m_waitingForStats = false;
 };
 
 #endif // MAINWINDOW_H

@@ -10,6 +10,7 @@ class LogInForm;
 class LogInForm : public QWidget
 {
     Q_OBJECT
+    friend class TestLoginForm;
 
 public:
     explicit LogInForm(QWidget *parent = nullptr);

@@ -6,6 +6,22 @@
 #include <QTimer>
 #include <cmath>
 
+Task2Form::Task2Form(QWidget *parent) :
+    QWidget(parent),
+    ui(new Ui::Task2Form),
+    m_login("test_user"),
+    m_taskId(2)
+{
+    ui->setupUi(this);
+    ui->answerLineEdit->setPlaceholderText("Введите ответ (число)");
+    ui->answerLineEdit->setClearButtonEnabled(true);
+    ui->resultLabel->clear();
+    ui->resultLabel->setAlignment(Qt::AlignCenter);
+    ui->resultLabel->setWordWrap(true);
+    ui->answerLineEdit->setStyleSheet("");
+    generateNewTask();
+}
+
 Task2Form::Task2Form(const QString &login, int taskId, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Task2Form),

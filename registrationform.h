@@ -10,6 +10,7 @@ class RegistrationForm;
 class RegistrationForm : public QWidget
 {
     Q_OBJECT
+    friend class TestRegistrationForm;
 
 public:
     explicit RegistrationForm(QWidget *parent = nullptr);

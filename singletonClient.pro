@@ -34,7 +34,7 @@ FORMS += \
     loginform.ui \
     mainwindow.ui \
     registrationform.ui \
-    statisticwindow.ui \
     task2form.ui\
     task1.ui\
-    task3.ui
+    task3.ui\
+    statisticwindow.ui

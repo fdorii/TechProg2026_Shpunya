@@ -64,17 +64,25 @@ void SingletonClient::send_msg_to_server(QString query)
 
 void SingletonClient::slotServerRead()
 {
-    // Добавляем все полученные данные в буфер
     QByteArray newData = mTcpSocket->readAll();
     qDebug() << "Buffer received:" << newData;
 
     m_readBuffer.append(newData);
 
-    // Обрабатываем все полные сообщения в буфере
+    // Пробуем парсить JSON, если это он
+    QJsonDocument doc = QJsonDocument::fromJson(m_readBuffer);
+    if (doc.isObject() && doc.object().contains("task1")) {
+        QString msg = QString::fromUtf8(m_readBuffer);
+        m_lastMessage = msg;
+        qDebug() << "JSON stats received:" << msg;
+        emit msg_from_server(msg);
+        m_readBuffer.clear();
+        return;
+    }
+
+    // Старый построчный парсинг
     while (m_readBuffer.contains('\n')) {
         int endIndex = m_readBuffer.indexOf('\n');
-
-        // Извлекаем сообщение до \n
         QByteArray message = m_readBuffer.left(endIndex).trimmed();
         m_readBuffer.remove(0, endIndex + 1);
 
@@ -82,7 +90,6 @@ void SingletonClient::slotServerRead()
             QString msg = QString::fromUtf8(message);
             m_lastMessage = msg;
 
-            // Пропускаем приветственное сообщение сервера
             if (!msg.contains("Hello, World") && !msg.contains("echo server")) {
                 qDebug() << "Message from server:" << msg;
                 emit msg_from_server(msg);

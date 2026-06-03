@@ -7,6 +7,10 @@
 #include "statisticwindow.h"
 #include <QDebug>
 #include <QMessageBox>
+#include <QTcpSocket>
+#include <QJsonDocument>
+#include <QJsonObject>
+
 
 MainWindow::MainWindow(const QString &login, QWidget *parent) :
     QMainWindow(parent),
@@ -29,9 +33,31 @@ MainWindow::~MainWindow()
 
 void MainWindow::appendServerMessage(QString msg)
 {
-    // Если есть текстовое поле для логов
-    // ui->logTextEdit->append(msg);
-    qDebug() << "Server message in MainWindow:" << msg;
+    qDebug() << "=== STEP 6: appendServerMessage called, msg =" << msg;
+    qDebug() << "=== STEP 7: m_waitingForStats =" << m_waitingForStats;
+    if (m_waitingForStats) {
+        qDebug() << "=== STEP 8: Waiting flag is TRUE, parsing... ===";
+        QJsonDocument doc = QJsonDocument::fromJson(msg.toUtf8());
+        qDebug() << "=== STEP 9: JSON parsed, isObject =" << doc.isObject();
+        if (doc.isObject()) {
+                    QJsonObject obj = doc.object();
+                    qDebug() << "=== STEP 10: JSON object keys =" << obj.keys();
+                    qDebug() << "=== STEP 11: Contains 'task1' =" << obj.contains("task1");
+
+                    if (obj.contains("task1")) {
+                        qDebug() << "=== STEP 12: All checks passed, delivering to StatisticForm ===";
+                        m_waitingForStats = false;
+                        if (statisticForm) {
+                            statisticForm->setStatistics(obj);
+                            qDebug() << "=== STEP 13: setStatistics called ===";
+                        } else {
+                            qDebug() << "=== ERROR: statisticForm is NULL! ===";
+                        }
+                        return;
+        }
+    }
+    qDebug() << "=== STEP 14: Not a stats message, ignoring ===";
+}
 }
 
 void MainWindow::on_pushButton_3_clicked()
@@ -112,17 +138,29 @@ void MainWindow::updateConnectionStatus(bool connected)
 
 void MainWindow::on_StatisticButton_clicked()
 {
-    qDebug() << "Static button clicked";
+    qDebug() << "=== STEP 1: StatisticButton clicked ===";
     if (!statisticForm) {
+        qDebug() << "=== STEP 2: Creating new StatisticForm ===";
         statisticForm = new StatisticForm(m_currentLogin);
-        connect(statisticForm, &StatisticForm::destroyed, this, [this]() {
+        statisticForm->setAttribute(Qt::WA_DeleteOnClose);
+        connect(statisticForm, &QObject::destroyed, this, [this]() {
             statisticForm = nullptr;
-            qDebug() << "StatisticForm closed";
         });
     }
-
     statisticForm->show();
     statisticForm->raise();
     statisticForm->activateWindow();
-}
 
+    // Устанавливаем флаг, что ждём статистику
+    m_waitingForStats = true;
+    qDebug() << "=== STEP 3: Flag set, sending request ===";
+
+    // Отправляем запрос
+    QJsonObject json;
+    json["type"] = "get_detailed_stats";
+    json["login"] = m_currentLogin;
+    QString request = QString::fromUtf8(QJsonDocument(json).toJson(QJsonDocument::Compact));
+    qDebug() << "=== STEP 4: Request string =" << request;
+    SingletonClient::getInstance()->send_msg_to_server(request);
+    qDebug() << "Stats requested";
+}
